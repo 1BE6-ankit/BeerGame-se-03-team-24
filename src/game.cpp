@@ -1,204 +1,242 @@
+#include <iostream>
+#include <vector>
+#include <map>
+
 #include "game.h"
+#include "order.h"
+#include "playerinterface.h"
 
-Game::Game(QObject *parent) : QObject(parent){
-    InstrId = rand()%20;
-    gId = InstrId + 1;
-    pFactId = gId + 1;
-    pDistributorId = gId + 2;
-    pWholesellerId = gId + 3;
-    pRetailerId = gId + 4;
-    //ordersToBeExecuted.assign(4,5);
-    demandPerWeek.assign(5,5);
-    orderTimeDelay = 2;
-    holdingCost = 0.5;
-    backorderCost = 1;
-    StartingInventory = 12;
-    weeksToBePlayed = 26;
-    currentWeek = 0;
-    infoCode = 0;
-    orderDelay = 2;
-    shipmentDelay = 2;
+using namespace std;
+
+Game::Game() {
 }
 
-Game::~Game(){
+void Game::initGame() {
+    //########
+    //## Orders and Shipments for week 1
+    //########
+    // Consumer ----> Retailer
+    ordersToBeExecuted[0].push_back(Order(10, 4, 1, getUpstream(CONSUMER)));
 
+    // Consumer <----- Retailer ----> Wholesaler
+    ordersToBeExecuted[0].push_back(Order(11, 4, 1, getUpstream(RETAILER)));
+    shipmentsToBeExecuted[0].push_back(Shipment(11, 4, 1, getDownstream(RETAILER)));
+
+    // Retailer <----- Wholesaler ----> Distributor
+    ordersToBeExecuted[0].push_back(Order(12, 4, 1, getUpstream(WHOLESALER)));
+    shipmentsToBeExecuted[0].push_back(Shipment(12, 4, 1, getDownstream(WHOLESALER)));
+
+    // Wholesaler <----- Distributoer ----> Factory
+    ordersToBeExecuted[0].push_back(Order(13, 4, 1, getUpstream(DISTRIBUTOR)));
+    shipmentsToBeExecuted[0].push_back(Shipment(13, 4, 1, getDownstream(DISTRIBUTOR)));
+
+    // Wholesaler <----- Factory ----> Factory
+    shipmentsToBeExecuted[0].push_back(Shipment(14, 4, 1, getUpstream(FACTORY)));
+    shipmentsToBeExecuted[0].push_back(Shipment(14, 4, 1, getDownstream(FACTORY)));
+
+    //########
+    //## Orders and Shipments for week 2
+    //########
+    // Consumer ----> Retailer
+    ordersToBeExecuted[1].push_back(Order(20, 4, 1, getUpstream(CONSUMER)));
+
+    // Consumer <----- Retailer ----> Wholesaler
+    ordersToBeExecuted[1].push_back(Order(21, 4, 1, getUpstream(RETAILER)));
+    shipmentsToBeExecuted[1].push_back(Shipment(11, 4, 1, getDownstream(RETAILER)));
+
+    // Retailer <----- Wholesaler ----> Distributor
+    ordersToBeExecuted[1].push_back(Order(22, 4, 1, getUpstream(WHOLESALER)));
+    shipmentsToBeExecuted[1].push_back(Shipment(12, 4, 1, getDownstream(WHOLESALER)));
+
+    // Wholesaler <----- Distributoer ----> Factory
+    ordersToBeExecuted[1].push_back(Order(23, 4, 1, getUpstream(DISTRIBUTOR)));
+    shipmentsToBeExecuted[1].push_back(Shipment(13, 4, 1, getDownstream(DISTRIBUTOR)));
+
+    // Wholesaler <----- Factory ----> Factory
+    shipmentsToBeExecuted[1].push_back(Shipment(24, 4, 1, getUpstream(FACTORY)));
+    shipmentsToBeExecuted[1].push_back(Shipment(24, 4, 1, getDownstream(FACTORY)));
 }
 
-//functionality methods
-int Game::executeOrdersForCurrentWeek(){
-    return 0;
-
+void Game::startGame() {
+    // start executing orders and shipment for 1st week
+    currentWeek++;
+    executeOrdersForCurrentWeek();
+    executeShipmentsForCurrentWeek();
 }
 
-int Game::updatePlayerInventories(){
-    return 0;
-}
+void Game::executeOrdersForCurrentWeek(){
+    vector<Order> weekOrders = ordersToBeExecuted[currentWeek-1];
+    for(Order order : weekOrders) {
+        order.executeEvent();
+    }        
+};
 
+void Game::executeShipmentsForCurrentWeek(){
+    vector<Shipment> weeksShipments = shipmentsToBeExecuted[currentWeek-1];
+    for(Shipment shipment : weeksShipments) {
+        shipment.executeEvent();
+    }
+};
+
+int Game::getConsumerOrderForWeek() {
+    return demandPerWeek[currentWeek-1];
+}
 
 int Game::advanceWeek(){
-    currentWeek = currentWeek + 1;
+    nOrdersReceived = 0;
+    nShipmentsReceived = 0;
+    currentWeek++;
+
+    // NOTIFY PLAYERS THAT THE WEEK HAS ADVANCED
+    executeOrdersForCurrentWeek();
+    executeShipmentsForCurrentWeek();
+
     return currentWeek;
+};
 
-}
-
-void Game::addOrder(Order order){
-
-}
-
-std::vector<std::string> Game::generatePasswords(int n){
-    const char *seq = "abcdefghijklmnopqrstuvwxyz123456789!*ABCDEFGHIJKLMNOP)($";
-    std::string pass;
-
-    std::vector<std::string> password;
-    for (int j = 0; j < n; ++j){
-        for (int i = 0; i < 5; ++i)
-            pass[i]= seq[rand()%45];
-        password.push_back(pass);
+void Game::addOrder(int numberOfBeers, int role){
+    // For Order
+    int orderWeek, shipmentWeek;
+    if(role != FACTORY) {
+        orderWeek = orderDelay + currentWeek;
+        Order order(99, numberOfBeers, orderWeek, this->getUpstream(role));
+        ordersToBeExecuted[orderWeek - 1].push_back(order);
+        nOrdersReceived++;
+    } else {
+        // for factory, order is made to itself. So it will deliver to itself in 2 * factoryDelay
+        shipmentWeek = factoryDelay * 2 + currentWeek;
+        Shipment shipment(99, numberOfBeers, shipmentWeek, this->getUpstream(role));
+        shipmentsToBeExecuted[shipmentWeek - 1].push_back(shipment);
+        nShipmentsReceived++;
     }
-    return password;
+
+    if(nOrdersReceived == nPlayers - 1 && nShipmentsReceived == nPlayers) {
+        advanceWeek();
+    }
+};
+
+void Game::addShipment(int numberOfBeers, int role){
+    // For shipment
+    int shipmentWeek;
+    if(role != CONSUMER) {
+        // TODO: Add a new variable for shipment delay
+        // TODO: Add a function for genOrderId()
+        shipmentWeek = orderDelay + currentWeek;
+        Shipment shipment(99, numberOfBeers, shipmentWeek, this->getDownstream(role));
+        shipmentsToBeExecuted[shipmentWeek - 1].push_back(shipment);
+        nShipmentsReceived++;
+    }
+
+    if(nOrdersReceived == nPlayers - 1 && nShipmentsReceived == nPlayers) {
+        advanceWeek();
+    }
+};
+
+void Game::addPlayerInterface(PlayerInterface* player) {
+    (players).push_back(player);
+    player->setGame(this);
 }
 
-//setters
-
-void Game::setGId(int n_id){
-    gId = n_id;
-    return;
+PlayerInterface* Game::getDownstream(int role) {
+    if(role == CONSUMER) {
+        return (players)[role];
+    } else {
+        return (players)[role - 1];
+    }
 }
 
-void Game::setInstrId(int n_id){
-    InstrId = n_id;
-    return;
+PlayerInterface* Game::getUpstream(int role) {
+    if(role == FACTORY) {
+        return (players)[role];
+    } else {
+        return (players)[role + 1];
+    }
 }
 
-void Game::setPFactId(int n_id){
-    pFactId = n_id;
-    return;
-}
 
-void Game::setPDistributorId(int n_id){
-    pDistributorId = n_id;
-    return;
-}
-
-void Game::setPWholesalerId(int n_id){
-    pWholesellerId = n_id;
-    return;
-}
-
-void Game::setPRetailerId(int n_id){
-    pRetailerId = n_id;
-    return;
-}
-
-void Game::setOrderTimeDelay(int n){
-    orderTimeDelay = n;
-    return;
+void Game::setGId(int gId) {
+    this->gId = gId;
 }
 
 void Game::setWeeksToBePlayed(int w){
     weeksToBePlayed = w;
-    return;
+};
+
+void Game::setInfoCode(int code){
+    infoCode = code;
+};
+
+void Game::setStartingInventory(int si){
+    startingInventory = si;
+};
+
+void Game::setBackorderCost(double cost){
+    backorderCost = cost;
+};
+
+void Game::setHoldingCost(double hc){
+    holdingCost = hc;
+};
+
+void Game::setFactoryDelay(int factoryDelay) {
+    this->factoryDelay = factoryDelay;
 }
 
-void Game::setInfoCode(int n){
-    infoCode = n;
-    return;
+void Game::setOrderDelay(int orderDelay) {
+    this->orderDelay = orderDelay;
 }
 
-void Game::setHoldingCost(double n){
-    holdingCost = n;
-    return;
+void Game::setShipmentDelay(int s) {
+    this->shipmentDelay = s;
 }
 
-void Game::setStartingInventory(int n){
-    StartingInventory = n;
-    return;
-}
-
-void Game::setBackorderCost(double n){
-    backorderCost = n;
-    return;
-}
-
-void Game::setCurrentWeek(int w){
-    currentWeek = w;
-    return;
-}
-
-void Game::setOrderDelay(int n){
-    orderDelay = n;
-    return;
-}
-
-
-void Game::setShipmentDelay(int n){
-    shipmentDelay = n;
-    return;
-}
-
-
-//getters
-
-int Game::getGId(){
+int Game::getGId() {
     return gId;
 }
 
-int Game::getInstrId(){
-    return InstrId;
-}
-
-int Game::getPFactId(){
-    return pFactId;
-}
-
-int Game::getPDistributorId(){
-    return pDistributorId;
-}
-
-int Game::getPWholesalerId(){
-    return pWholesellerId;
-}
-
-int Game::getPRetailerId(){
-    return pRetailerId;
-}
-
-int Game::getOrderTimeDelay(){
-    return orderTimeDelay;
-}
-
-int Game::getWeeksToBePlayed(){
-    return weeksToBePlayed;
-}
-
-int Game::getInfoCode(){
-    return infoCode;
-}
-
-double Game::getHoldingCost(){
-    return holdingCost;
-}
-
-int Game::getStartingInventory(){
-    return StartingInventory;
-}
-
-double Game::getBackorderCost(){
-    return backorderCost;
-}
-
-int Game::getCurrentWeek(){
-    return currentWeek;
-}
-
-int Game::getOrderDelay(){
-    return orderDelay;
-}
-
-int Game::getShipmentDelay(){
+int Game::getShipmentDelay() {
     return shipmentDelay;
 }
 
+int Game::getWeeksToBePlayed() {
+    return weeksToBePlayed;
+}
 
+int Game::getInfoCode() {
+    return infoCode;
+}
 
+double Game::getBackorderCost() {
+    return backorderCost;
+}
 
+double Game::getHoldingCost() {
+    return holdingCost;
+}
+
+int Game::getFactoryDelay() {
+    return factoryDelay;
+}
+
+int Game::getOrderDelay() {
+    return orderDelay;
+}
+
+int Game::getStartingInventory() {
+    return startingInventory;
+}
+
+int Game::getCurrentWeek() {
+    return currentWeek;
+}
+
+vector<string> Game::generatePasswords(){
+    return vector<string>();
+};
+
+/**
+* @brief what does it do?
+*/
+void Game::setCurrentWeek(int week){
+    this->currentWeek = week;
+};
