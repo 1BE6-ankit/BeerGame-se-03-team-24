@@ -1,331 +1,213 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include <iostream>
-#include <memory>
-#include <map>
+#include <string>
 #include <vector>
-#include <QObject>
+#include <map>
+
 #include "order.h"
+#include "shipment.h"
+#include "player.h"
+#include "playerinterface.h"
 
-class Game: public QObject
+class Order;
+class PlayerInterface;
+
+/**
+ * \brief Handles a game 
+ */
+
+class Game
 {
-    Q_OBJECT
+private:
+    int gId;
+
+    std::map<int, std::vector<Order>> ordersToBeExecuted;
+    std::map<int, std::vector<Shipment>> shipmentsToBeExecuted;
+
+    std::vector<PlayerInterface*> players;
+    std::vector<int> demandPerWeek =
+        {6, 6, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8};
+
+    int orderDelay = 2;
+    double holdingCost = 0.5;
+    double backorderCost = 1;
+    int startingInventory = 12;
+    int weeksToBePlayed = 26;
+    int currentWeek = 0;
+    int infoCode = 0;
+    int factoryDelay = 1;
+
+    int nOrdersReceived = 0;
+    int nShipmentsReceived = 0;
+    int nPlayers = 5;
+
+    // test
+    int instrid;
+    int pFactId;
+    int pDistributorId;
+    int pWholesalerId;
+    int pRetailerId;
+    int shipmentDelay;
+
 public:
-    /*
-     * \brief Constructor for game class, sets the default values for game class
-    */
-     explicit Game(QObject *parent = nullptr);
+    Game();
 
-    /*
-     * \brief distructor for game class
-    */
-    ~Game();
+    /**
+     * @brief Initializes a game based on supplied setters.
+     * 
+     * One main responsibility of this method is to create orders and shipments based on the order delay. For example, if the orderDelay is 2 weeks, orders and shipments for 
+     * two weeks should be created. These values are either set by default or accessed using instructor. However, as of Sprint2, the functionality 
+     * for instructor to enter these values does not exist
+     */
+    void initGame();
 
-    /*
-     * \brief Method to execute orders for current week
-    */
-    int executeOrdersForCurrentWeek();
+    /**
+     * @brief This method is called by the instructor to start the game
+     * 
+     * Basically when this function is called, it starts executing orders and shipments for the 1st week
+     */
+    void startGame();
 
-    /*
-     * \brief Method to update player inventories
-    */
-    int updatePlayerInventories();
+    /**
+     * @brief Takes the order vector for the current week based on currentWeek proerty. Then loops through the vector and 
+     * executes the orders by calling order.executeEvent() 
+     */
+    void executeOrdersForCurrentWeek();
 
-    /*
-     * \brief Method advance a week during the game
+    /**
+     * @brief Takes the shipment vector for the current week based on currentWeek proerty. Then loops through the vector and 
+     * executes the shipments by calling shipment.executeEvent() 
+     */
+    void executeShipmentsForCurrentWeek();
+
+    /**
+     * @brief This method was listed in the initial documentation, but has been deprecated
+     * 
+     * @deprecated
+     */
+    void updatePlayerInventories();
+
+    /**
+     * @brief For the current week return the consumer order.
+     * 
+     * The values for consumer order are set by default. These values can be overriden by values provided by the instructor. However, as of Sprint2 
+     * this functionality in instructor does not exist
+     * 
+     * @return Consumer order for the current week.
+     * 
+     */
+    int getConsumerOrderForWeek();
+
+    /**
+    * @brief Call executeOrderForCurrentWeek() and executeShipmentForCurrentWeek()
     */
     int advanceWeek();
 
-    /*
-     * \brief Method to add order
-     * \param order is the order to be added
-    */
-    void addOrder(Order order);
+    /**
+     * @brief Add the parameter to the vector of orders
+     * 
+     * The order contains a property that says in which week it is going to be executed. Using this property, the order is placed in 
+     * ordertoBeExecuted vector's correct location
+     * 
+     * @param order The order object that is to be added to ordersToBeExecuted
+     */
+    void addOrder(int numberOfBeers, int role);
 
-    /*
-     * \brief Method to generate passwords for player in the game
-     * \param n describes the no of passwords to be generated
-    */
-    std::vector<std::string> generatePasswords(int n);
+    /**
+     * @brief Add the parameter to the vector of shipments
+     * 
+     * The shipment contains a property that says in which week it is going to be executed. Using this property, the shipment is placed in 
+     * shipmentsToBeExecuted vector's correct location
+     * 
+     * @param order The shipment object that is to be added to shipmentsToBeExecuted
+     */
+    void addShipment(int numberOfBeers, int role);
 
+    /**
+     * @brief Adds a player pointer to the list of player
+     * 
+     * Note that the order of addition matters. The order should be from downstream to upstream.
+     */
+    void addPlayerInterface(PlayerInterface* player);
 
+    /**
+     * @brief Returns the pointer to the downstream player for the player whose role is 'role'
+     */
+    PlayerInterface* getDownstream(int role);
 
-    /*
-     * \brief Setter method for the Game Id
-     * \param n_id seeting value Game Id
-    */
-    void setGId(int n_id);
+    /**
+     * @brief Returns the pointer to the upstream player for the player whose role is 'role'
+     */
+    PlayerInterface* getUpstream(int role);
 
-    /*
-     * \brief Setter method for the Instructor Id
-     * \param n_id seeting value for Instructor Id
-    */
-    void setInstrId(int n_id);
+    //////
+    /// Setters
+    //////
 
-    /*
-     * \brief Setter method for the Factory Id
-     * \param n_id seeting value for Factory Id
-    */
-    void setPFactId(int n_id);
+    void setGId(int gId);
 
-    /*
-     * \brief Setter method for the Distributor Id
-     * \param n_id seeting value for Distributor Id
-    */
-    void setPDistributorId(int n_id);
+    void setWeeksToBePlayed(int w);
 
-    /*
-     * \brief Setter method for the Wholesaler Id
-     * \param n_id seeting value for Wholesaler Id
-    */
-    void setPWholesalerId(int n_id);
+    void setInfoCode(int code);
 
-    /*
-     * \brief Setter method for the Retailer Id
-     * \param n_id seeting value for Retailer Id
-    */
-    void setPRetailerId(int n_id);
+    void setBackorderCost(double cost);
 
-    /*
-     * \brief Setter method for the Order Time delay
-     * \param n_id seeting value for Order Time delay
-    */
-    void setOrderTimeDelay(int n);
+    void setHoldingCost(double hc);
 
-    /*
-     * \brief Setter method for Weeks to be played
-     * \param n seeting value for Weeks to be played
-    */
-    void setWeeksToBePlayed(int n);
+    void setFactoryDelay(int);
 
-    /*
-     * \brief Setter method for the Info code
-     * \param n seeting value for Info code
-    */
-    void setInfoCode(int n);
+    void setOrderDelay(int);
 
-    /*
-     * \brief Setter method for the Holding cost
-     * \param n seeting value for Holding cost
-    */
-    void setHoldingCost(double n);
+    void setStartingInventory(int si);
 
-    /*
-     * \brief Setter method for the Starting inventory
-     * \param n seeting value for starting inventory
-    */
-    void setStartingInventory(int n);
+    void setCurrentWeek(int week);
 
-    /*
-     * \brief Setter method for Backorder cost
-     * \param n seeting value for Backorder cost
-    */
-    void setBackorderCost(double n);
+    void setShipmentDelay(int);
 
-    /*
-     * \brief Setter method for the Current Week
-     * \param n seeting value for current week
-    */
-    void setCurrentWeek(int n);
-
-    /*
-     * \brief Setter method for the Order delay
-     * \param n seeting value for the order delay
-    */
-    void setOrderDelay(int n);
-
-    /*
-     * \brief Setter method for the Shipment delay
-     * \param n seeting value for shipment delay
-    */
-    void setShipmentDelay(int n);
-
-
-
-    /*
-     * \brief Getter method for Game Id
-     * \return Game Id
-    */
+    //////
+    /// Setters
+    //////
     int getGId();
 
-    /*
-     * \brief Getter method for instructor Id
-     * \return Instructor Id
-    */
-    int getInstrId();
-
-    /*
-     * \brief Getter method for Factory Id
-     * \return Factory Id
-    */
-    int getPFactId();
-
-    /*
-     * \brief Getter method for distributor Id
-     * \return distributor Id
-    */
-    int getPDistributorId();
-
-    /*
-     * \brief Getter method for wholeseller Id
-     * \return wholeseller Id
-    */
-    int getPWholesalerId();
-
-    /*
-     * \brief Getter method for retailer Id
-     * \return retailer Id
-    */
-    int getPRetailerId();
-
-    /*
-     * \brief Getter method for Order Time dealy
-     * \return order time delay
-    */
-    int getOrderTimeDelay();
-
-    /*
-     * \brief Getter method for weeks to be played
-     * \return weeks to be played
-    */
     int getWeeksToBePlayed();
 
-    /*
-     * \brief Getter method for Info Code
-     * \return Info code
-    */
     int getInfoCode();
 
-    /*
-     * \brief Getter method for Holding cost
-     * \return Holding cost
-    */
-    double getHoldingCost();
-
-    /*
-     * \brief Getter method for Starting Inventory
-     * \return Starting inventory
-    */
-    int getStartingInventory();
-
-    /*
-     * \brief Getter method for Backorder Cost
-     * \return Backorder Cost
-    */
     double getBackorderCost();
 
-    /*
-     * \brief Getter method for current cost
-     * \return current cost
-    */
-    int getCurrentWeek();
+    double getHoldingCost();
 
-    /*
-     * \brief Getter method for Order delay
-     * \return order Delay
-    */
+    int getFactoryDelay();
+
     int getOrderDelay();
 
-    /*
-     * \brief Getter method for Shipment delay
-     * \return Shipment Delay
-    */
+    int getStartingInventory();
+
+    int getCurrentWeek();
+
     int getShipmentDelay();
 
-    //std::vector<int> getOrdersToBeExecuted();
+    /// 
+    // For test cases
+    ///
+    void setOrderTimeDelay(int i) {setOrderDelay(i);};
+    int getOrderTimeDelay() {return orderDelay;}
 
+    void setInstrId(int id) {this->instrid = id;};
+    void setPFactId(int id) {this->pFactId = id;};
+    void setPDistributorId(int id) {this->pDistributorId = id;};
+    void setPWholesalerId(int id) {this->pWholesalerId = id;};
+    void setPRetailerId(int id) {this->pRetailerId = id;};
 
-private:
-    /*
-    * \brief Attribute for Game Id
-    */
-    int gId;
+    int getInstrId() {return this->instrid;};
+    int getPFactId() {return this->pFactId;};
+    int getPDistributorId() {return this->pDistributorId;};
+    int getPWholesalerId() {return this->pWholesalerId;};
+    int getPRetailerId() {return this->pRetailerId;};
 
-    /*
-    * \brief Attribute for Instructor Id
-    */
-    int InstrId;
-
-    /*
-    * \brief Attribute for Factory Id
-    */
-    int pFactId;
-
-    /*
-    * \brief Attribute for Distributor Id
-    */
-    int pDistributorId;
-
-    /*
-    * \brief Attribute for Wholeseller Id
-    */
-    int pWholesellerId;
-
-    /*
-    * \brief Attribute for Retailer Id
-    */
-    int pRetailerId;
-
-    /*
-    * \brief Attribute which maps orders to orders to be executed vector
-    */
-    std::map<int, std::vector<Order>> ordersToBeExecuted;
-
-    /*
-    * \brief Attribute which defines the order for that week
-    */
-    std::vector <int> demandPerWeek;
-
-    /*
-    * \brief Attribute for Order time delay
-    */
-    int orderTimeDelay;
-
-    /*
-    * \brief Attribute for Holding cost for a game
-    */
-    double holdingCost;
-
-    /*
-    * \brief Attribute for Back order cost for a game
-    */
-    double backorderCost;
-
-    /*
-    * \brief Attribute for Starting inventory
-    */
-    int StartingInventory;
-
-    /*
-    * \brief Attribute to define total no of weeks the game is being played
-    */
-    int weeksToBePlayed;
-
-    /*
-    * \brief Attribute for Current week
-    */
-    int currentWeek;
-
-    /*
-    * \brief Attribute for info code
-    */
-    int infoCode;
-
-    /*
-    * \brief Attribute for Order delay
-    */
-    int orderDelay;
-
-    /*
-    * \brief Shipment delay of a specific game
-    */
-    int shipmentDelay;
-
-
-
-
+    std::vector<std::string> generatePasswords();
 
 };
 
-#endif // GAME_H
+#endif //GAME_H

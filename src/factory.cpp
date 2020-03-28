@@ -1,25 +1,11 @@
+#include <iostream>
 #include "factory.h"
 
-Factory::Factory(QObject *parent) : Player(parent){
+using namespace std;
 
-}
-Factory::~Factory(){
-
-}
-
-
-void Factory::setProductionTime(int value){
-    productionTime = value;
-    return;
-}
-
-int Factory::getProductionTime() const{
-    return productionTime;
-}
-
-void Factory::produce(int n){
-    return;
-}
-
+/**
+* @brief what does it do?
+*/
+void Factory::produce(int numberOfBeers){};
 
 

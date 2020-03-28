@@ -1,194 +1,125 @@
-#ifndef PLAYER_H
-#define PLAYER_H
+#ifndef _PLAYER_H
+#define _PLAYER_H
 
+#include <string>
 
-#include <iostream>
-#include <vector>
-#include <QObject>
+#include "playerinterface.h"
 
-class Player: public QObject
-{
-    Q_OBJECT
-public:
-    /*
-     * \brief Constructor for game class, sets the default values for game class
-    */
-    explicit Player(QObject *parent = nullptr);
+class PlayerInterface;
 
-    /*
-     * \brief Constructor for game class, sets the default values for game class
-     * \param n_role seeting value for player role in the game
-    */
-    Player(int n_role);
+/**
+ * @brief what does this class do?
+*/
+#define CONSUMER 0
+#define RETAILER 1
+#define WHOLESALER 2
+#define DISTRIBUTOR 3
+#define FACTORY 4
 
-    /*
-     * \brief distructor for game class
-    */
-    ~Player();
-
-
-    /*
-     * \brief Method to order a shipment from a player
-     * \param numberOfBeers is number of beers to be ordered
-     * \param From is the player from where the order is ordered
-    */
-    void order(int numberOfBeers, Player from);
-
-    /*
-     * \brief Method to ship a shipment to the player
-     * \param numberOfBeers is number of beers to be shipped
-     * \param to is the player from where the order is to be shipped
-    */
-    void ship(int numberOfBeers, Player to);
-
-    /*
-     * \brief Method to decrease inventory
-     * \param numberOfBeers is number of beers to be decreased in the inventory
-    */
-    int decreaseInventory(int numberOfBeers);
-
-    /*
-     * \brief Method to increase inventory
-     * \param numberOfBeers is number of beers to be increased in the inventory
-    */
-    int increaseInventory(int numberOfBeers);
-
-    /*
-     * \brief Method to receive Shipment
-     * \param OrderID is id of order to be received
-    */
-    void receiveShipment(int orderID);
-
-
-
-    /*
-     * \brief Setter method for the Player Id
-     * \param n_PId seeting value for player Id
-    */
-    void setPId(int n_PId);
-
-    /*
-     * \brief Setter method for the Player role
-     * \param n_role seeting value for player role
-    */
-    void setRole(int n_role);
-
-    /*
-     * \brief Setter method for the Player Inventory
-     * \param n_inventory seeting value for player inventory
-    */
-    void setInventory(int n_inventory);
-
-    /*
-     * \brief Setter method for the Player's backorder
-     * \param n_backorder seeting value for player's backorder
-    */
-    void setBackorder(int n_backorder);
-
-    /*
-     * \brief Setter method for the Player's cost
-     * \param n_cost seeting value for player's cost
-    */
-    void setCost(int n_cost);
-
-    /*
-     * \brief Setter method for the Players's demand
-     * \param n_demand seeting value for player's demand
-    */
-    void setDemand(int n_demand);
-
-    /*
-     * \brief Setter method for the Player's order to be placed
-     * \param n_order seeting value for player's order to be placed
-    */
-    void setOrderPlaced(int n_order);
-
-
-
-
-    /*
-     * \brief Getter method for Player Id
-     * \return Instructor Id
-    */
-    int getPId();
-
-    /*
-     * \brief Getter method for Player's role in the game
-     * \return role
-    */
-    int getRole();
-
-    /*
-     * \brief Getter method for player's inventory
-     * \return player's inventory
-    */
-    int getInventory();
-
-    /*
-     * \brief Getter method for backorder cost
-     * \return backorder cost
-    */
-    int getBackorder();
-
-    /*
-     * \brief Getter method for player's cost
-     * \return cost
-    */
-    int getCost();
-
-    /*
-     * \brief Getter method for demand of player
-     * \return player id
-    */
-    int getDemand();
-
-    /*
-     * \brief Getter method for order to be placed
-     * \return order placed
-    */
-    int getOrderPlaced();
-
-
-private:
-    /*
-    * \brief Attribute for Player Id
-    */
-    int pId;
-
-    /*
-    * \brief Attribute for role of player in game
-    */
-    int role;
-
-    /*
-    * \brief Attribute for current inventory of the player
-    */
-    int inventory;
-
-    /*
-    * \brief Attribute for current backorder of the player
-    */
-    double backorder;
-
-    /*
-    * \brief Attribute for current cost of player in the game
-    */
-    double cost;
-
-    /*
-    * \brief Attribute for current demand of player in game
-    */
-    int demand;
-
-    /*
-    * \brief Attribute for order placed by the player
-    */
-    int orderPlaced;
-
-
-
-
-
+const std::string PLAYER_NAMES[] = {
+    "Consumer",
+    "Retailer",
+    "Wholesaler",
+    "Distributor",
+    "Factory"
 };
 
-#endif // PLAYER_H
+class Player
+{
+private:
+    int pId;
+    int role;
+
+    int oldInventory;
+    int oldBackOrder;
+    int inventory = 12;
+    int backOrder = 0;
+    int incomingOrder = 0;
+    int incomingShipment = 0;
+    int outgoingShipment = 0;
+    int demand;
+    
+    double holdingCost = 0.5;
+    double backOrderCost = 1;
+    double cost = 0;
+    double totalCost = 0;
+
+    bool orderReceived = false;
+    bool shipmentReceived = false;
+
+    void updateData();
+    int getAvailableShipment(int numberOfBeers);
+
+    PlayerInterface* playerInterface;
+
+    // test ases
+    int orderPlaced;
+
+public: // every function here has been made void just for making template, change it accordingly
+    Player() {}
+
+    Player(int role);
+
+    void setInterface(PlayerInterface*);
+
+    void placeOrder(int);
+
+    void placeShipment(int);
+
+    int getIncomingShipment();
+
+    int getOutgoingShipment();
+
+    void startTransaction(int nOrders);
+
+    bool transactionReceived();
+
+    /**
+     * @brief Based on the demand from the downstrea, it make changes to the inventory, and returns the number of beers that are available for 
+     * shipments
+     */
+
+    void receiveShipment(int);
+
+    void receiveOrder(int);
+
+    int decreaseInventory(int numberOfBeers);
+
+    int increaseInventory(int numberOfBeers);
+
+    void setPId(int);
+
+    void setDemand(int);
+
+    void setRole(int);
+
+    void setInventory(int);
+
+    void setBackorder(int);
+
+    void setOrderPlaced(int);
+
+    void setCost(double);
+
+    int getPId();
+
+    int getOrderPlaced();
+
+    int getRole() const {return role;};
+
+    int getBackorder();
+
+    int getOldBackOrder();
+
+    int getDemand();
+
+    int getCost();
+
+    int getTotalCost();
+
+    int getInventory();
+
+    int getOldInventory();
+};
+
+#endif //PLAYER_H

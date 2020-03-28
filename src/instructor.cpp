@@ -1,50 +1,114 @@
+#include <iostream>
+#include <vector>
+#include <string>
+
+#include "game.h"
+#include "player.h"
+#include "playerinterface.h"
 #include "instructor.h"
+#include "instructorwindow.h"
+#include "ui_instructorwindow.h"
 
-Instructor::Instructor(QObject *parent) : QObject(parent){
+using namespace std;
 
+void Instructor::setUi(Ui::InstructorWindow* ui) {
+    this->ui = ui;
 }
 
-Instructor::~Instructor(){
-
+void Instructor::setWindowParent(QWidget* uiParent) {
+    this->uiParent = uiParent;
 }
 
-
-void Instructor::showGamesStatus(){
-
-}
+void Instructor::showGameStatus(){};
 
 int Instructor::createGame(){
-    return  1;
+    createGames(1);
+
+    return 0; // game succesfully created
 }
 
-std::vector<int> Instructor::createGames(){
-    std::vector<int> v;
-    return  v;
+vector<Game> Instructor::createGames(int numberOfGames){
+
+    if(numberOfGames == 1) {
+        // As of now only one game can be created
+
+        QString backlogCostStr = ui->backlogCostIn->text();
+        QString factoryDelayStr = ui->factoryDelayIn->text();
+        QString holdingCostStr = ui->holdingCostIn->text();
+        QString nWeeksStr = ui->nWeeksIn->text();
+        QString orderDelayStr = ui->orderDelayIn->text();
+        QString startInventoryStr = ui->startInventoryIn->text();
+        Qt::CheckState botCheckState = ui->botCheckBox->checkState();
+
+        double backlogCost = backlogCostStr.toDouble();
+        int factoryDelay = factoryDelayStr.toInt();
+        double holdingCost = holdingCostStr.toDouble();
+        int nWeeks = nWeeksStr.toUInt();
+        int orderDelay = orderDelayStr.toUInt();
+        int startInventory = startInventoryStr.toInt();
+
+        Game* game = new Game();
+        game->setHoldingCost(holdingCost);
+        game->setBackorderCost(backlogCost);
+        game->setFactoryDelay(factoryDelay);
+        game->setWeeksToBePlayed(nWeeks);
+        game->setOrderDelay(orderDelay);
+        game->setStartingInventory(startInventory);
+
+        Player* consumer = new Player(CONSUMER);
+        Player* retailer = new Player(RETAILER);
+        Player* wholesaler = new Player(WHOLESALER);
+        Player* distributor = new Player(DISTRIBUTOR);
+        Player* factory = new Player(FACTORY);
+
+        PlayerInterface* consumerI = new PlayerInterface(uiParent, consumer);
+        PlayerInterface* retailerI = new PlayerInterface(uiParent, retailer);
+        PlayerInterface* wholesalerI = new PlayerInterface(uiParent, wholesaler);
+        PlayerInterface* distributorI = new PlayerInterface(uiParent, distributor);
+        PlayerInterface* factoryI = new PlayerInterface(uiParent, factory);
+        game->addPlayerInterface(consumerI);
+        game->addPlayerInterface(retailerI);
+        game->addPlayerInterface(wholesalerI);
+        game->addPlayerInterface(distributorI);
+        game->addPlayerInterface(factoryI);
+
+        game->initGame();
+        game->startGame();
+        if(botCheckState == Qt::CheckState::Checked)
+            consumerI->show();
+        retailerI->show(); retailerI->move(0, 0);
+        wholesalerI->show(); wholesalerI->move(0, 800);
+        distributorI->show(); distributorI->move(800, 0);
+        factoryI->show(); factoryI->move(800, 800);
+    }
+
+    return vector<Game>();
 }
 
-void Instructor::setInstrEmail(std::string const n_instrEmail){
-    instrEmail = n_instrEmail;
-    return;
+/////
+/// Instructor setters and getters
+/////
+
+void Instructor::setInstrEmail(string instrEmail) {
+    this->instrEmail = instrEmail;
 }
 
-void Instructor::setInstrPassword(std::string const n_instrPassword){
-    instrPassword = n_instrPassword;
-    return;
+void Instructor::setInstrPassword(string instrPassword) {
+    this->instrPassword = instrPassword;
 }
 
-void Instructor::setInstrId(int n_instrId){
-    instrid = n_instrId;
-    return;
+void Instructor::setInstrId(int instrId) {
+    this->instrId = instrId;
 }
 
-std::string Instructor::getInstrEmail(){
+string Instructor::getInstrEmail() {
     return instrEmail;
 }
 
-std::string Instructor::getInstrPassword(){
+string Instructor::getInstrPassword() {
     return instrPassword;
 }
 
-int Instructor::getInstrId(){
-    return instrid;
+int Instructor::getInstrId() {
+    return instrId;
 }

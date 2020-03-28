@@ -1,109 +1,180 @@
+#include <iostream>
+#include <string>
+
 #include "player.h"
+#include "game.h"
+#include "order.h"
+#include "shipment.h"
 
-Player::Player(QObject *parent) : QObject(parent){
+#include "playerinterface.h"
 
+using namespace std;
+
+Player::Player(int role) :
+    role(role)
+{};
+
+void Player::placeOrder(int numberOfBeers) {
+    playerInterface->placeOrder(numberOfBeers);
 }
 
-Player::Player(int n_role):role(n_role){
-    pId = rand()%20;
-    inventory = orderPlaced = demand = backorder = cost = 0;
-
+void Player::placeShipment(int numberOfBeers){
+    playerInterface->placeShipment(numberOfBeers);
 }
 
-Player::~Player(){
-
+void Player::startTransaction(int nOrders) {
+    orderReceived = false;
+    shipmentReceived = false;
+    placeOrder(nOrders);
+    placeShipment(outgoingShipment);
 }
 
-//functionality methods
-void Player::order(int numberOfBeers, Player from){
-
-
+bool Player::transactionReceived() {
+    return (orderReceived && shipmentReceived);
 }
 
-void Player::ship(int numberOfBeers, Player to){
+void Player::updateData() {
+    oldInventory = inventory;
+    oldBackOrder = backOrder;
 
+    totalCost += (double) holdingCost * (double) inventory +
+            (double) backOrderCost * (double) backOrder;
+
+    // set outgoing and incoming  shipments
+    increaseInventory(incomingShipment);
+    if(role != CONSUMER)
+        outgoingShipment = getAvailableShipment(demand);
 }
+
+
+void Player::receiveOrder(int orderedBeers) {
+    orderReceived = true;
+    demand = orderedBeers;
+
+    if(orderReceived && shipmentReceived) {
+        updateData();
+    }
+}
+
+void Player::receiveShipment(int shipped) {
+    incomingShipment = shipped;
+    shipmentReceived = true;
+
+    if((orderReceived && shipmentReceived) || role == CONSUMER ) {
+        updateData();
+    }
+}
+
+int Player::getAvailableShipment(int downstreamDemand){
+    int previous = inventory;
+    int toFulfill = downstreamDemand + backOrder;
+
+    decreaseInventory(toFulfill);
+    int shipmentToDownstream = previous - inventory;
+
+    return shipmentToDownstream;
+};
 
 int Player::decreaseInventory(int numberOfBeers){
-    inventory = inventory - numberOfBeers;
+    inventory -= numberOfBeers;
+    if(inventory <0) {
+        backOrder = abs(inventory);
+        inventory = 0;
+    }
+
     return inventory;
-}
+};
 
 int Player::increaseInventory(int numberOfBeers){
-    inventory = inventory + numberOfBeers;
+    inventory += numberOfBeers;
     return inventory;
+};
+
+void Player::setInterface(PlayerInterface* playerInterface) {
+    this->playerInterface = playerInterface;
 }
 
-void Player::receiveShipment(int orderID){
-
+int Player::getOrderPlaced() {
+    return orderPlaced;
 }
 
-//setters
-
-void Player::setPId(int n_PId){
-    pId = n_PId;
-    return;
+int Player::getIncomingShipment() {
+    return incomingShipment;
 }
 
-void Player::setRole(int n_role){
-    role = n_role;
-    return;
+int Player::getOutgoingShipment() {
+    return outgoingShipment;
 }
 
-void Player::setInventory(int n_inventory){
-    inventory = n_inventory;
-    return;
-}
-
-void Player::setBackorder(int n_backorder){
-    backorder =  n_backorder;
-    return;
-
-}
-
-void Player::setCost(int n_cost){
-    cost = n_cost;
-    return;
-}
-
-void Player::setDemand(int n_demand){
-    demand = n_demand;
-    return;
-
-}
-
-void Player::setOrderPlaced(int n_order){
-    orderPlaced = n_order;
-    return;
-}
-
-//getters
-
-int Player::getPId(){
-    return pId;
-}
-
-int Player::getRole(){
-    return role;
-}
-
-int Player::getInventory(){
-    return inventory;
-}
-
-int Player::getBackorder(){
-    return backorder;
-}
-
-int Player::getCost(){
-    return cost;
-}
-
-int Player::getDemand(){
+int Player::getDemand() {
     return demand;
 }
 
-int Player::getOrderPlaced(){
-    return orderPlaced;
+int Player::getBackorder(){
+    if(backOrder < 0) {
+        // invalid backorder. Print to error window
+    }
+    return backOrder;
+};
+
+int Player::getOldBackOrder() {
+    return oldBackOrder;
 }
+
+int Player::getInventory(){
+    if(inventory < 0) {
+        // assert or print log to error window.
+    }
+    return inventory;
+};
+
+int Player::getOldInventory() {
+    return oldInventory;
+}
+
+int Player::getTotalCost() {
+    return totalCost;
+}
+
+/////
+/// For the sake of test cases
+/////
+
+void Player::setPId(int id) {
+    this->pId = id;
+}
+
+void Player::setDemand(int demand) {
+    this->demand = demand;
+}
+
+void Player::setCost(double cost) {
+    this->cost = cost;
+}
+
+void Player::setInventory(int in) {
+    this->inventory = in;
+}
+
+void Player::setBackorder(int o) {
+    this->backOrder = o;
+}
+
+void Player::setOrderPlaced(int o) {
+    this->orderPlaced = o;
+}
+
+void Player::setRole(int role) {
+    this->role = role;
+}
+
+int Player::getPId() {
+    return pId;
+}
+
+
+int Player::getCost(){
+    return cost;
+};
+
 
