@@ -17,7 +17,7 @@ public:
 
     Order(int, int, int, PlayerInterface*);
 
-    void executeEvent();
+    void executeOrder();
 };
 
 

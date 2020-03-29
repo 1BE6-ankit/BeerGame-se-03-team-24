@@ -67,14 +67,14 @@ void Game::startGame() {
 void Game::executeOrdersForCurrentWeek(){
     vector<Order> weekOrders = ordersToBeExecuted[currentWeek-1];
     for(Order order : weekOrders) {
-        order.executeEvent();
+        order.executeOrder();
     }        
 };
 
 void Game::executeShipmentsForCurrentWeek(){
     vector<Shipment> weeksShipments = shipmentsToBeExecuted[currentWeek-1];
     for(Shipment shipment : weeksShipments) {
-        shipment.executeEvent();
+        shipment.executeShipment();
     }
 };
 

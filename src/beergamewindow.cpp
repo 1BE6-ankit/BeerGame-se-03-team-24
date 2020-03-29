@@ -25,14 +25,13 @@ void BeerGameWindow::on_guestBtn_clicked()
 {
     ui->loginBtn->setText("You clicked");
 
-    InstructorWindow* instructorW = new InstructorWindow(this);
-    instructorW->show();
+//    InstructorWindow* instructorW = new InstructorWindow(this);
+//    instructorW->show();
 
-    GameServer gameServer;
-    if(!gameServer.listen(QHostAddress::Any, 9898)) {
-        std::cout << "SerVER STARTED" << std::endl;
+    BeerGameServer* gameServer = new BeerGameServer;
+    if(!gameServer->listen(QHostAddress(QString("127.0.0.1")), 9898)) {
+        std::cout << "Error while establishing server" << std::endl;
     }
-
 
 //    this->hide();
 }

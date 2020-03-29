@@ -8,78 +8,65 @@
 
 #include "playerinterface.h"
 #include "player.h"
+#include "game.h"
 
 class Player;
+class Game;
 
 class PlayerInterfaceServer : public PlayerInterface {
     Q_OBJECT
-public:
-    explicit PlayerInterfaceServer(QWidget *parent = nullptr, Player* player = nullptr);
-    virtual bool setSocketDescriptor(qintptr socketDescriptor);
-    void setPlayerRole(int role);
-    void sendJson(const QJsonObject &jsonData);
-    void setRole(int role);
+    public:
+        explicit PlayerInterfaceServer(QWidget* parent = nullptr);
+        virtual bool setSocketDescriptor(qintptr socketDescriptor);
+        void sendJson(const QJsonObject& jsonData);
+        void setRole(int role);
 
-    void jsonFromLoggedOut(const QJsonObject &docObj);
-    void jsonFromLoggedIn(const QJsonObject &docObj);
+    signals:
+        void jsonReceived(const QJsonObject& jsonDoc);
+        void disconnectedFromPlayer();
+        void error();
+        void logMessage(const QString& msg);
 
-signals:
-    void jsonReceived(const QJsonObject &jsonDoc);
-    void disconnectedFromPlayer();
-    void error();
-    void logMessage(const QString &msg);
+    public slots:
+        void disconnectFromPlayer();
 
-public slots:
-    void disconnectFromPlayer();
+    private slots:
+        void receiveJson();
 
-private slots:
-    void receiveJson();
-
-private:
-    QTcpSocket *m_playerSocket;
+    private:
+        QTcpSocket* m_playerSocket;
 };
 
 
-class GameServer : public QTcpServer {
+class BeerGameServer : public QTcpServer {
     Q_OBJECT
-    Q_DISABLE_COPY(GameServer)
-public:
-    explicit GameServer(QObject *parent = nullptr);
+    Q_DISABLE_COPY(BeerGameServer)
+    public:
+        explicit BeerGameServer(QObject* parent = nullptr);
 
-protected:
-    void incomingConnection(qintptr socketDescriptor) override;
+    protected:
+        void incomingConnection(qintptr socketDescriptor) override;
 
-signals:
-    void logMessage(const QString &msg);
+    signals:
+        void logMessage(const QString& msg);
 
-public slots:
-    void stopServer();
-    void displayLogMessage(const QString &msg);
+    public slots:
+        void stopServer();
+        void displayLogMessage(const QString& msg);
 
-private slots:
-//    void jsonReceived(PlayerInterfaceServer *sender, const QJsonObject &doc);
-    void playerDisconnected(PlayerInterfaceServer *sender);
-    void playerError(PlayerInterfaceServer *sender);
+    private slots:
+        void receiveJson(PlayerInterfaceServer* sender, const QJsonObject& doc);
+        void sendJson(PlayerInterfaceServer* destination, const QJsonObject& message);
+        void playerDisconnected(PlayerInterfaceServer* sender);
+        void playerError(PlayerInterfaceServer* sender);
 
-private:
-//    void jsonFromLoggedOut(PlayerInterfaceServer *sender, const QJsonObject &doc);
-//    void jsonFromLoggedIn(PlayerInterfaceServer *sender, const QJsonObject &doc);
-//    void sendJson(PlayerInterfaceServer *destination, const QJsonObject &message);
-    QVector<PlayerInterfaceServer *> m_clients;
+    private:
+        void jsonFromLoggedOut(PlayerInterfaceServer* sender, const QJsonObject& doc);
+        void jsonFromLoggedIn(PlayerInterfaceServer* sender, const QJsonObject& doc);
 
+    private:
+        QVector<PlayerInterfaceServer*> m_clients;
+        QVector<Game*> m_games;
 };
 
 #endif // BEERGAMESERVER_H
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -20,7 +20,7 @@ class PlayerInterface : public QDialog
     Q_OBJECT
 
 public:
-    explicit PlayerInterface(QWidget *parent = nullptr, Player* player = nullptr);
+    explicit PlayerInterface(QWidget *parent = nullptr);
     ~PlayerInterface();
 
     virtual void receiveOrder(int);

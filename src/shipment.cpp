@@ -8,6 +8,6 @@ Shipment::Shipment(int eventId, int nBeers, int execInWeek, PlayerInterface* rec
     PlayerEvent(eventId, nBeers, execInWeek, receiver)
 {}
 
-void Shipment::executeEvent() {
+void Shipment::executeShipment() {
     receiver->receiveShipment(numberOfBeers);
 }
