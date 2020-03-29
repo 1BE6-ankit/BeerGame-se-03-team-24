@@ -4,6 +4,9 @@ project(beer-game)
 
 add_executable(beer-game
     main.cpp
+    beergameserver.h
+    gameserver.cpp
+    playerinterfaceserver.cpp
     playerinterface.h
     playerinterface.cpp
     playerinterface.h

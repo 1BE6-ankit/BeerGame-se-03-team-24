@@ -90,6 +90,11 @@ void PlayerInterface::setPlayer(Player *player) {
     this->player = player;
 }
 
+int PlayerInterface::getRole() {
+    if(player == NULL) return -1;
+    return player->getRole();
+}
+
 void PlayerInterface::updateUi() {
     // enable button
     ui->orderBtn->setEnabled(true);
