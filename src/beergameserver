@@ -1,0 +1,11 @@
+#ifndef GAMESERVER
+#define GAMESERVER
+
+
+class gameserver
+{
+public:
+    gameserver();
+};
+
+#endif // GAMESERVER

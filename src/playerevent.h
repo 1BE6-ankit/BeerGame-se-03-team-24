@@ -27,8 +27,6 @@ public:
         receiver(receiver)
     {};
 
-    void executeEvent() const;
-
     int getEventId() const {
         return eventId;
     };

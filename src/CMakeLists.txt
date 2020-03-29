@@ -4,6 +4,9 @@ project(beer-game)
 
 add_executable(beer-game
     main.cpp
+    beergameserver.h
+    beergameserver.cpp
+    playerinterfaceserver.cpp
     playerinterface.h
     playerinterface.cpp
     playerinterface.h
@@ -28,4 +31,4 @@ add_executable(beer-game
     ../resources/resources.qrc
 )
 
-target_link_libraries(beer-game PRIVATE Qt5::Widgets Qt5::Network)
+target_link_libraries(beer-game PRIVATE Qt5::Widgets Qt5::Network Qt5::Core Qt5::Gui)

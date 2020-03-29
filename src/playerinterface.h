@@ -2,6 +2,8 @@
 #define PLAYERINTERFACE_H
 
 #include <QDialog>
+#include <QJsonObject>
+#include <QTcpSocket>
 
 #include "game.h"
 #include "player.h"
@@ -18,7 +20,7 @@ class PlayerInterface : public QDialog
     Q_OBJECT
 
 public:
-    explicit PlayerInterface(QWidget *parent = nullptr, Player* player = nullptr);
+    explicit PlayerInterface(QWidget *parent = nullptr);
     ~PlayerInterface();
 
     virtual void receiveOrder(int);
@@ -29,6 +31,7 @@ public:
 
     virtual void setPlayer(Player* player);
     virtual void setGame(Game* game);
+    int getRole();
 
 protected:
     Ui::PlayerInterface *ui;
@@ -39,5 +42,6 @@ private slots:
     void on_orderBtn_clicked();
 
 };
+
 
 #endif // PLAYERINTERFACE_

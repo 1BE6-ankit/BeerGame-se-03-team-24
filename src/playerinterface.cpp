@@ -9,29 +9,14 @@
 
 using namespace std;
 
-PlayerInterface::PlayerInterface(QWidget *parent, Player* player) :
+PlayerInterface::PlayerInterface(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::PlayerInterface),
-    player(player)
+    ui(new Ui::PlayerInterface)
 {
     ui->setupUi(this);
-    player->setInterface(this);
 
     // make textbox accpet numbers only
     ui->orderIn->setValidator(new QIntValidator(0, 1000, this));
-
-    // disable input field for CONSUMER
-    if(player->getRole() == CONSUMER)
-        ui->orderIn->setEnabled(false);
-
-    string playerName = PLAYER_NAMES[player->getRole()];
-    string downstreamName = PLAYER_NAMES[player->getRole() - 1];
-    string upstreamName = PLAYER_NAMES[player->getRole() + 1];
-
-    this->setWindowTitle(QString::fromStdString(playerName));
-    ui->PlayerArea->setTitle(QString::fromStdString(playerName));
-    ui->DownstreamGraph->setTitle(QString::fromStdString("To " + downstreamName + ": Order and Shipment Graph"));
-    ui->UpstreamGraph->setTitle(QString::fromStdString("From " + upstreamName + ": Order and Shipment Graph"));
 }
 
 void PlayerInterface::on_orderBtn_clicked()
@@ -88,6 +73,25 @@ void PlayerInterface::setGame(Game *game) {
 
 void PlayerInterface::setPlayer(Player *player) {
     this->player = player;
+    player->setInterface(this);
+
+    // disable input field for CONSUMER
+    if(player->getRole() == CONSUMER)
+        ui->orderIn->setEnabled(false);
+
+    string playerName = PLAYER_NAMES[player->getRole()];
+    string downstreamName = PLAYER_NAMES[player->getRole() - 1];
+    string upstreamName = PLAYER_NAMES[player->getRole() + 1];
+
+    this->setWindowTitle(QString::fromStdString(playerName));
+    ui->PlayerArea->setTitle(QString::fromStdString(playerName));
+    ui->DownstreamGraph->setTitle(QString::fromStdString("To " + downstreamName + ": Order and Shipment Graph"));
+    ui->UpstreamGraph->setTitle(QString::fromStdString("From " + upstreamName + ": Order and Shipment Graph"));
+}
+
+int PlayerInterface::getRole() {
+    if(player == NULL) return -1;
+    return player->getRole();
 }
 
 void PlayerInterface::updateUi() {

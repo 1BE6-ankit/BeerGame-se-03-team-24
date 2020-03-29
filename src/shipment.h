@@ -12,7 +12,7 @@ public:
 
     Shipment(int, int, int, PlayerInterface*);
 
-    void executeEvent();
+    void executeShipment();
 };
 
 #endif

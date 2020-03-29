@@ -8,6 +8,6 @@ Order::Order(int eventId, int nBeers, int execInWeek, PlayerInterface* receiver)
     PlayerEvent(eventId, nBeers, execInWeek, receiver)
 {}
 
-void Order::executeEvent() {
+void Order::executeOrder() {
     receiver->receiveOrder(numberOfBeers);
 }
