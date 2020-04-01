@@ -134,7 +134,6 @@ void Game::addShipment(int numberOfBeers, int role){
 
 void Game::addPlayerInterface(PlayerInterface* player) {
     (players).push_back(player);
-    player->setGame(this);
 }
 
 PlayerInterface* Game::getDownstream(int role) {
@@ -153,6 +152,11 @@ PlayerInterface* Game::getUpstream(int role) {
     }
 }
 
+bool Game::isGamePlayable() {
+    std::cout << "Player Size: " << players.size() << std::endl;
+    if(players.size() == 5) return true;
+    return false;
+}
 
 void Game::setGId(int gId) {
     this->gId = gId;

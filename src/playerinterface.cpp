@@ -2,6 +2,7 @@
 #include <QRegExpValidator>
 
 #include <string>
+#include <iostream>
 
 #include "playerinterface.h"
 #include "ui_playerinterface.h"
@@ -13,6 +14,7 @@ PlayerInterface::PlayerInterface(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::PlayerInterface)
 {
+    player = nullptr;
     ui->setupUi(this);
 
     // make textbox accpet numbers only
@@ -28,8 +30,12 @@ void PlayerInterface::on_orderBtn_clicked()
     } else {
         ui->orderIn->setStyleSheet("QLineEdit { background-color: white; }");
         ui->orderBtn->setDisabled(true);
-        player->startTransaction(nOrder.toUInt());
+        this->sendOrderToPlayer(nOrder.toUInt());
     }
+}
+
+void PlayerInterface::sendOrderToPlayer(int nBeers) {
+    player->startTransaction(nBeers);
 }
 
 
@@ -67,8 +73,8 @@ void PlayerInterface::placeShipment(int numberOfBeers){
     game->addShipment(numberOfBeers, player->getRole());
 }
 
-void PlayerInterface::setGame(Game *game) {
-    this->game = game;
+void PlayerInterface::setGame(Game *p_game) {
+    this->game = p_game;
 }
 
 void PlayerInterface::setPlayer(Player *player) {
@@ -90,9 +96,12 @@ void PlayerInterface::setPlayer(Player *player) {
 }
 
 int PlayerInterface::getRole() {
-    if(player == NULL) return -1;
+    if(player == nullptr) {
+        return -1;
+    }
     return player->getRole();
 }
+
 
 void PlayerInterface::updateUi() {
     // enable button
