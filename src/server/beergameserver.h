@@ -7,9 +7,9 @@
 #include <QObject>
 #include <vector>
 
-#include "playerinterface.h"
-#include "player.h"
-#include "game.h"
+#include "../playerinterface.h"
+#include "../player.h"
+#include "../game.h"
 
 class Player;
 class Game;

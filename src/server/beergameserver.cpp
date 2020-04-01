@@ -6,9 +6,9 @@
 #include <QJsonArray>
 #include <QJsonObject>
 
-#include "player.h"
-#include "game.h"
-#include "playerinterface.h"
+#include "../player.h"
+#include "../game.h"
+#include "../playerinterface.h"
 
 BeerGameServer::BeerGameServer(QObject *parent) :
     QTcpServer(parent)

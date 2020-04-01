@@ -4,7 +4,6 @@
 #include  "instructorwindow.h"
 #include "game.h"
 #include "player.h"
-#include "beergameserver.h"
 
 #include <iostream>
 
@@ -25,13 +24,8 @@ void BeerGameWindow::on_guestBtn_clicked()
 {
     ui->loginBtn->setText("You clicked");
 
-//    InstructorWindow* instructorW = new InstructorWindow(this);
-//    instructorW->show();
+    InstructorWindow* instructorW = new InstructorWindow(this);
+    instructorW->show();
 
-    BeerGameServer* gameServer = new BeerGameServer;
-    if(!gameServer->listen(QHostAddress(QString("10.42.0.1")), 9898)) {
-        std::cout << "Error while establishing server" << std::endl;
-    }
-
-//    this->hide();
+    this->hide();
 }

@@ -8,7 +8,7 @@
 #include <iostream>
 
 #include "beergameserver.h"
-#include "playerinterface.h"
+#include "../playerinterface.h"
 
 
 PlayerInterfaceServer::PlayerInterfaceServer(QWidget *parent) :
