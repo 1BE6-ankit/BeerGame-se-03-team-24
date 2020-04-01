@@ -3,6 +3,7 @@
 #include <QJsonDocument>
 #include <QJsonParseError>
 #include <QJsonObject>
+#include <QJsonArray>
 
 #include <iostream>
 
@@ -30,21 +31,17 @@ void PlayerInterfaceServer::receiveJson()
     for (;;) {
         socketStream.startTransaction();
         socketStream >> jsonData;
-        std::cout << "Message: " << QString::fromUtf8(jsonData).toStdString() << std::endl;
         if (socketStream.commitTransaction()) {
             QJsonParseError parseError;
             const QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonData, &parseError);
             if (parseError.error == QJsonParseError::NoError) {
-                if (jsonDoc.isObject()) { // and is a JSON object
-//                    emit jsonReceived(jsonDoc.object()); // send the message to the central server
-                    //
-                    // PROCESS  JSON HERE
-                    std::cout << QString(jsonDoc.toJson(QJsonDocument::Compact)).toStdString() << std::endl;
+                if (jsonDoc.isObject()) {
+                    emit jsonReceived(jsonDoc.object());
                 }
                 else
-                    emit logMessage("Invalid message: " + QString::fromUtf8(jsonData)); //notify the server of invalid data
+                    emit logMessagePlayer("Invalid message: " + QString::fromUtf8(jsonData));
             } else {
-                emit logMessage("Invalid message: " + QString::fromUtf8(jsonData)); //notify the server of invalid data
+                emit logMessagePlayer("Invalid message: " + QString::fromUtf8(jsonData));
             }
         } else {
             break;
@@ -55,7 +52,7 @@ void PlayerInterfaceServer::receiveJson()
 void PlayerInterfaceServer::sendJson(const QJsonObject &json)
 {
     const QByteArray jsonData = QJsonDocument(json).toJson(QJsonDocument::Compact);
-    emit logMessage("Sending to " + QString::number(getRole()) + " - " + QString::fromUtf8(jsonData));
+    emit logMessagePlayer("Sending to " + QString::number(getRole()) + " - " + QString::fromUtf8(jsonData));
     QDataStream socketStream(m_playerSocket);
 //    socketStream.setVersion(QDataStream::Qt_5_14);
     socketStream << jsonData;
@@ -68,10 +65,44 @@ bool PlayerInterfaceServer::setSocketDescriptor(qintptr socketDescriptor) {
 
 void PlayerInterfaceServer::disconnectFromPlayer() {
     m_playerSocket->disconnectFromHost();
-    emit logMessage("Client disconnected");
+    emit logMessagePlayer("Client disconnected");
 }
 
-void PlayerInterfaceServer::setRole(int role) {
-    player->setRole(role);
-}
+void PlayerInterfaceServer::updateUi() {
+    QJsonArray data;
+    QJsonObject updateUiMessage;
+    QJsonObject tempMessage;
 
+    tempMessage["data"] = "inventory";
+    tempMessage["value"] = std::to_string(player->getOldInventory()).c_str();
+    data.append(tempMessage);
+    tempMessage["data"] = "backlog";
+    tempMessage["value"] = std::to_string(player->getOldBackOrder()).c_str();
+    data.append(tempMessage);
+
+    tempMessage["data"] = "inventoryafter";
+    tempMessage["value"] = std::to_string(player->getInventory()).c_str();
+    data.append(tempMessage);
+    tempMessage["data"] = "backlogafter";
+    tempMessage["value"] = std::to_string(player->getBackorder()).c_str();
+    data.append(tempMessage);
+
+    tempMessage["data"] = "incomingorder";
+    tempMessage["value"] = std::to_string(player->getDemand()).c_str();
+    data.append(tempMessage);
+    tempMessage["data"] = "incomingshipment";
+    tempMessage["value"] = std::to_string(player->getIncomingShipment()).c_str();
+    data.append(tempMessage);
+    tempMessage["data"] = "outgoingshipment";
+    tempMessage["value"] = std::to_string(player->getOutgoingShipment()).c_str();
+    data.append(tempMessage);
+
+    tempMessage["data"] = "totalcost";
+    tempMessage["value"] = std::to_string(player->getTotalCost()).c_str();
+    data.append(tempMessage);
+
+    updateUiMessage["data"] = data;
+    updateUiMessage["type"] = "updateUi";
+
+    sendJson(updateUiMessage);
+}

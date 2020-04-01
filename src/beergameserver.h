@@ -5,6 +5,7 @@
 #include <QTcpServer>
 #include <QWidget>
 #include <QObject>
+#include <vector>
 
 #include "playerinterface.h"
 #include "player.h"
@@ -20,12 +21,13 @@ class PlayerInterfaceServer : public PlayerInterface {
         virtual bool setSocketDescriptor(qintptr socketDescriptor);
         void sendJson(const QJsonObject& jsonData);
         void setRole(int role);
+        void updateUi() override;
 
     signals:
         void jsonReceived(const QJsonObject& jsonDoc);
         void disconnectedFromPlayer();
         void error();
-        void logMessage(const QString& msg);
+        void logMessagePlayer(const QString& msg);
 
     public slots:
         void disconnectFromPlayer();
@@ -48,7 +50,7 @@ class BeerGameServer : public QTcpServer {
         void incomingConnection(qintptr socketDescriptor) override;
 
     signals:
-        void logMessage(const QString& msg);
+        void logMessageServer(const QString& msg);
 
     public slots:
         void stopServer();
@@ -56,17 +58,18 @@ class BeerGameServer : public QTcpServer {
 
     private slots:
         void receiveJson(PlayerInterfaceServer* sender, const QJsonObject& doc);
-        void sendJson(PlayerInterfaceServer* destination, const QJsonObject& message);
         void playerDisconnected(PlayerInterfaceServer* sender);
         void playerError(PlayerInterfaceServer* sender);
 
     private:
+        void sendJson(PlayerInterfaceServer* destination, const QJsonObject& message);
         void jsonFromLoggedOut(PlayerInterfaceServer* sender, const QJsonObject& doc);
         void jsonFromLoggedIn(PlayerInterfaceServer* sender, const QJsonObject& doc);
 
     private:
         QVector<PlayerInterfaceServer*> m_clients;
         QVector<Game*> m_games;
+//        std::vector<Game *>* m_games = new std::vector<Game*>(10);
 };
 
 #endif // BEERGAMESERVER_H

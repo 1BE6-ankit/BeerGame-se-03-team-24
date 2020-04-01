@@ -29,7 +29,7 @@ void BeerGameWindow::on_guestBtn_clicked()
 //    instructorW->show();
 
     BeerGameServer* gameServer = new BeerGameServer;
-    if(!gameServer->listen(QHostAddress(QString("127.0.0.1")), 9898)) {
+    if(!gameServer->listen(QHostAddress(QString("10.42.0.1")), 9898)) {
         std::cout << "Error while establishing server" << std::endl;
     }
 

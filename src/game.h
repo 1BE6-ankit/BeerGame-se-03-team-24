@@ -141,6 +141,8 @@ public:
      */
     PlayerInterface* getUpstream(int role);
 
+    bool isGamePlayable();
+
     //////
     /// Setters
     //////

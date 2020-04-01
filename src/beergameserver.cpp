@@ -3,11 +3,25 @@
 #include <iostream>
 
 #include <QJsonDocument>
+#include <QJsonArray>
+#include <QJsonObject>
+
+#include "player.h"
+#include "game.h"
+#include "playerinterface.h"
 
 BeerGameServer::BeerGameServer(QObject *parent) :
     QTcpServer(parent)
 {
     std::cout << "Starting server" << std::endl;
+
+    Game* game = new Game;
+    Player* consumer = new Player(0);
+    PlayerInterface* consumerI = new PlayerInterface;
+    consumerI->setPlayer(consumer);
+    consumerI->setGame(game);
+    game->addPlayerInterface(consumerI);
+    m_games.append(game);
 }
 
 void BeerGameServer::incomingConnection(qintptr socketDescriptor) {
@@ -24,17 +38,18 @@ void BeerGameServer::incomingConnection(qintptr socketDescriptor) {
             this, std::bind(&BeerGameServer::playerError, this, playerInterfaceServer));
     connect(playerInterfaceServer, &PlayerInterfaceServer::jsonReceived,
             this, std::bind(&BeerGameServer::receiveJson, this, playerInterfaceServer, std::placeholders::_1));
-    connect(playerInterfaceServer, &PlayerInterfaceServer::logMessage,
+    connect(playerInterfaceServer, &PlayerInterfaceServer::logMessagePlayer,
             this, &BeerGameServer::displayLogMessage);
-    connect(this, &BeerGameServer::logMessage,
+    connect(this, &BeerGameServer::logMessageServer,
             this, &BeerGameServer::displayLogMessage);
 
     m_clients.append(playerInterfaceServer);
-    emit logMessage(QStringLiteral("New client Connected"));
+    emit logMessageServer(QStringLiteral("New client Connected"));
 }
 
 void BeerGameServer::sendJson(PlayerInterfaceServer* destination, const QJsonObject& message)
 {
+    std::cout << "SendJson BeerGameServer" << std::endl;
     Q_ASSERT(destination);
     destination->sendJson(message);
 }
@@ -42,7 +57,7 @@ void BeerGameServer::sendJson(PlayerInterfaceServer* destination, const QJsonObj
 void BeerGameServer::receiveJson(PlayerInterfaceServer* sender, const QJsonObject& doc)
 {
     Q_ASSERT(sender);
-    emit logMessage("JSON received " + QString::fromUtf8(QJsonDocument(doc).toJson()));
+    emit logMessageServer("JSON received " + QString::fromUtf8(QJsonDocument(doc).toJson()));
     if (sender->getRole() < 0)
         return jsonFromLoggedOut(sender, doc);
 
@@ -57,44 +72,57 @@ void BeerGameServer::jsonFromLoggedIn(PlayerInterfaceServer* sender, const QJson
         return;
 
     const QJsonValue nBeersVal = docObj.value(QLatin1String("numberOfBeers"));
-    if(nBeersVal.isNull()) {
-        return;
-    }
-    const QString nBeers = nBeersVal.toString().trimmed();
-    if (nBeers.isEmpty())
-        return;
+//    if(nBeersVal.isNull()) {
+//        return;
+//    }
+    const int nBeers = nBeersVal.toInt();
+    emit logMessageServer("ORDER: Player " + QString(sender->getRole()) + " placed " + QString(nBeers) + " orders.");
+
+    sender->sendOrderToPlayer(nBeers);
 }
 
 void BeerGameServer::jsonFromLoggedOut(PlayerInterfaceServer* sender, const QJsonObject &docObj) {
+    emit logMessageServer("Request from logged out user");
     const QJsonValue typeVal = docObj.value(QLatin1String("type"));
-    if (typeVal.isNull() || !typeVal.isString())
+    if (typeVal.isNull())
         return;
     if (typeVal.toString().compare(QLatin1String("login"), Qt::CaseInsensitive) != 0)
         return;
 
     // process for game attribute
     const QJsonValue gameNumVal = docObj.value(QLatin1String("game"));
-    if (gameNumVal.isNull() || !gameNumVal.isString())
+    if (gameNumVal.isNull())
         return;
     const int gameNumber = gameNumVal.toInt();
-    if (gameNumber<=0 || gameNumber>m_games.length())
-        return;
+//    if (gameNumber<=0 || gameNumber>m_games.length())
+//        return;
 
     // process for role attribute
     const QJsonValue roleVal = docObj.value(QLatin1String("role"));
-    if (roleVal.isNull() || !roleVal.isString())
+    if (roleVal.isNull())
         return;
     const int role = roleVal.toInt();
     if (role < 0)
         return;
 
-    sender->setRole(role);
-    sender->setGame(m_games[gameNumber-1]);
+    Game* game = (m_games)[gameNumber - 1];
+    Player* player = new Player(role);
+    sender->setPlayer(player);
+    sender->setGame(game);
+    game->addPlayerInterface(sender);
+
+//    sender->setGame(m_games[gameNumber-1]);
 
     QJsonObject successMessage;
     successMessage["type"] = QStringLiteral("login");
     successMessage["success"] = true;
+
     sendJson(sender, successMessage);
+
+    if((m_games)[gameNumber - 1]->isGamePlayable()) {
+        (m_games)[gameNumber - 1]->initGame();
+        (m_games)[gameNumber - 1]->startGame();
+    }
 }
 
 void BeerGameServer::playerDisconnected(PlayerInterfaceServer *sender)
@@ -114,18 +142,16 @@ void BeerGameServer::playerError(PlayerInterfaceServer* sender)
 {
     Q_UNUSED(sender)
     int playerRole= sender->getRole();
-    emit logMessage("Error from " + QString::number(playerRole));
+    emit logMessageServer("Error from " + QString::number(playerRole));
 }
 
-void BeerGameServer::stopServer()
-{
+void BeerGameServer::stopServer() {
     for (PlayerInterfaceServer *worker : m_clients) {
         worker->disconnectFromPlayer();
     }
     close();
 }
 
-void BeerGameServer::displayLogMessage(const QString &msg)
-{
+void BeerGameServer::displayLogMessage(const QString &msg) {
     std::cout << msg.toStdString() << std::endl;
 }

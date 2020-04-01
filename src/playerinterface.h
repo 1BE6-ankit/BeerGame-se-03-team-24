@@ -29,9 +29,11 @@ public:
     virtual void placeShipment(int);
     virtual void updateUi();
 
+    void sendOrderToPlayer(int);
+
     virtual void setPlayer(Player* player);
     virtual void setGame(Game* game);
-    int getRole();
+    virtual int getRole();
 
 protected:
     Ui::PlayerInterface *ui;
