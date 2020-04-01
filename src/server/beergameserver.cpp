@@ -1,14 +1,16 @@
-#include "beergameserver.h"
-
 #include <iostream>
 
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QJsonObject>
 
+#include "beergameserver.h"
+#include "playerinterfaceserver.h"
+
 #include "../player.h"
 #include "../game.h"
 #include "../playerinterface.h"
+
 
 BeerGameServer::BeerGameServer(QObject *parent) :
     QTcpServer(parent)
@@ -118,6 +120,7 @@ void BeerGameServer::jsonFromLoggedOut(PlayerInterfaceServer* sender, const QJso
     QJsonObject successMessage;
     successMessage["type"] = QStringLiteral("login");
     successMessage["success"] = true;
+    successMessage["playerName"] = QString::fromUtf8(PLAYER_NAMES[role].c_str());
 
     sendJson(sender, successMessage);
 

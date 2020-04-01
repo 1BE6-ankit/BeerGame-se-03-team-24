@@ -27,7 +27,7 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>360</x>
+      <x>370</x>
       <y>40</y>
       <width>591</width>
       <height>341</height>
@@ -40,7 +40,7 @@
 }
 
 #settingsGroup:disabled{
-	background-color: rgba(255,255,255, 0.4);
+	background-color: rgba(220,220,220, 0.4);
 }</string>
     </property>
     <property name="title">
@@ -80,6 +80,9 @@
     border: 1px solid #f5f5f5;
 }</string>
       </property>
+      <property name="text">
+       <string>127.0.0.1</string>
+      </property>
      </widget>
      <widget class="QLabel" name="ip_label">
       <property name="geometry">
@@ -97,7 +100,14 @@
        </font>
       </property>
       <property name="styleSheet">
-       <string notr="true">#win_heading{ color: #111;font-family: 'League Spartan Bold', arial;}</string>
+       <string notr="true">#ip_label { 
+	color: #111;
+	font-family: 'League Spartan Bold', arial;
+}
+
+#ip_label:disabled {
+	color: #c0c0c0;
+}</string>
       </property>
       <property name="text">
        <string>IP Address</string>
@@ -117,6 +127,9 @@
     border: 1px solid #f5f5f5;
 }</string>
       </property>
+      <property name="text">
+       <string>8888</string>
+      </property>
      </widget>
      <widget class="QLabel" name="port_label">
       <property name="geometry">
@@ -134,7 +147,14 @@
        </font>
       </property>
       <property name="styleSheet">
-       <string notr="true">#port_label{ color: #111;font-family: 'League Spartan Bold', arial;}</string>
+       <string notr="true">#port_label{ 
+	color: #111;
+	font-family: 'League Spartan Bold', arial;
+}
+
+#port_label:disabled {
+	color: #c0c0c0;
+}</string>
       </property>
       <property name="text">
        <string>Port</string>
@@ -161,7 +181,15 @@
       </font>
      </property>
      <property name="styleSheet">
-      <string notr="true">#win_heading{ color: #111;font-family: 'League Spartan Bold', arial;}</string>
+      <string notr="true">#win_heading{ 
+	color: #111;
+	font-family: 'League Spartan Bold', arial;
+	color: #111;
+}
+
+#win_heading:disabled {
+	color: #c0c0c0;
+}</string>
      </property>
      <property name="text">
       <string>Server Settings</string>
@@ -199,7 +227,14 @@
     border: 1px solid #f5f5f5; 
 }
 
-#start_server_btn:hover { background-color: #66c011; color: white;}</string>
+#start_server_btn:hover { 
+	background-color: #66c011; 
+	color: black;
+}
+
+#start_server_btn:disabled { 
+	background-color: #c0c0c0;
+}</string>
      </property>
      <property name="text">
       <string>Start Server</string>
@@ -212,7 +247,7 @@
    <widget class="QPushButton" name="stopServerBtn">
     <property name="geometry">
      <rect>
-      <x>570</x>
+      <x>580</x>
       <y>390</y>
       <width>231</width>
       <height>61</height>

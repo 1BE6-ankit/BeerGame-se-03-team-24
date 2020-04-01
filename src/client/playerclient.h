@@ -9,6 +9,7 @@ class PlayerClient: public QObject
         Q_DISABLE_COPY(PlayerClient)
     public:
         explicit PlayerClient(QObject *parent = nullptr);
+        QString playerName = "";
     public slots:
         void connectToServer(const QHostAddress &address, quint16 port);
         void login(const int &GameId, const int& role);

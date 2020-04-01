@@ -7,7 +7,7 @@
 
 #include <iostream>
 
-#include "beergameserver.h"
+#include "playerinterfaceserver.h"
 #include "../playerinterface.h"
 
 
@@ -99,6 +99,10 @@ void PlayerInterfaceServer::updateUi() {
 
     tempMessage["data"] = "totalcost";
     tempMessage["value"] = std::to_string(player->getTotalCost()).c_str();
+    data.append(tempMessage);
+
+    tempMessage["data"] = "week";
+    tempMessage["value"] = std::to_string(game->getCurrentWeek()).c_str();
     data.append(tempMessage);
 
     updateUiMessage["data"] = data;

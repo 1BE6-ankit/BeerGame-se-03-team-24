@@ -102,7 +102,6 @@ int PlayerInterface::getRole() {
     return player->getRole();
 }
 
-
 void PlayerInterface::updateUi() {
     // enable button
     ui->orderBtn->setEnabled(true);

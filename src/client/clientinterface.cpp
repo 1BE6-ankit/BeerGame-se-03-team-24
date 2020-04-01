@@ -51,10 +51,10 @@ void ClientInterface::attemptConnection()
 
         QLineEdit *lineEdit = new QLineEdit(&dialog);
         if(i==0){
-            lineEdit->setText("10.42.0.1");
+            lineEdit->setText("127.0.0.1");
          }
         if(i==1)
-            lineEdit->setText("9898");
+            lineEdit->setText("8888");
         QString label = list[i];
         form.addRow(label, lineEdit);
 
@@ -85,13 +85,11 @@ void ClientInterface::attemptConnection()
 
 void ClientInterface::connectedToServer()
 {
-    ui->orderBtn->setDisabled(false);
     QDialog dialog(this);
     // Use a layout allowing to have a label next to each field
     QFormLayout form(&dialog);
 
     // Add some text above the fields
-
     // Add the lineEdits with their respective labels
     QList<QLineEdit *> fields;
     int GameId;
@@ -138,7 +136,8 @@ void ClientInterface::attemptLogin(const int &GameId, const int &role)
 void ClientInterface::loggedIn()
 {
     // once we successully log in we enable the ui to display and send messages
-    ui->orderIn->setEnabled(true);
+//    ui->orderIn->setEnabled(true);
+    ui->PlayerArea->setTitle(m_PlayerClient->playerName);
 
     // clear the user name record
     m_lastUserName.clear();
@@ -156,6 +155,7 @@ void ClientInterface::loginFailed(const QString &reason)
 void ClientInterface::messageReceived(const QString &text, const QString &sender)
 {
 //    this->findChild<QLabel>(sender).setText(text);
+    ui->orderBtn->setEnabled(true);
     QLabel* q =  this->findChild<QLabel*>(sender);   // store the index of the new row to append to the model containing the messages
     if(q==nullptr)
            return;
@@ -164,6 +164,7 @@ void ClientInterface::messageReceived(const QString &text, const QString &sender
 
 void ClientInterface::sendMessage()
 {
+    ui->orderBtn->setDisabled(true);
      m_PlayerClient->sendMessage(ui->orderIn->text());
     // we use the client to send the message that the user typed
 

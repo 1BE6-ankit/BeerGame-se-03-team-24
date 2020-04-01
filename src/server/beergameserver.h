@@ -11,34 +11,11 @@
 #include "../player.h"
 #include "../game.h"
 
+#include "playerinterfaceserver.h"
+
+class PlayerInterfaceServer;
 class Player;
 class Game;
-
-class PlayerInterfaceServer : public PlayerInterface {
-    Q_OBJECT
-    public:
-        explicit PlayerInterfaceServer(QWidget* parent = nullptr);
-        virtual bool setSocketDescriptor(qintptr socketDescriptor);
-        void sendJson(const QJsonObject& jsonData);
-        void setRole(int role);
-        void updateUi() override;
-
-    signals:
-        void jsonReceived(const QJsonObject& jsonDoc);
-        void disconnectedFromPlayer();
-        void error();
-        void logMessagePlayer(const QString& msg);
-
-    public slots:
-        void disconnectFromPlayer();
-
-    private slots:
-        void receiveJson();
-
-    private:
-        QTcpSocket* m_playerSocket;
-};
-
 
 class BeerGameServer : public QTcpServer {
     Q_OBJECT

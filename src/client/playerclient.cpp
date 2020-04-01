@@ -71,6 +71,7 @@ void PlayerClient::jsonReceived(const QJsonObject &docObj)
         const bool loginSuccess = resultVal.toBool();
         if (loginSuccess) {
             // we logged in successfully and we notify it via the loggedIn signal
+            playerName = docObj.value(QLatin1String("playerName")).toString();
             emit loggedIn();
             return;
         }

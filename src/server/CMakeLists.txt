@@ -10,6 +10,7 @@ add_executable(beergame-server
     main.cpp
     beergameserver.h
     beergameserver.cpp
+    playerinterfaceserver.h
     playerinterfaceserver.cpp
     beergameserverwindow.ui
     beergameserverwindow.cpp
