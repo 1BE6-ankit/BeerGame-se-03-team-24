@@ -6,24 +6,24 @@ set (CMAKE_BINARY_DIR ../)
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 SET(COMMON_SOURCE_FILES
-    playerinterface.h
-    playerinterface.cpp
-    playerinterface.h
-    playerinterface.ui
-    instructorwindow.cpp
-    instructorwindow.h
-    instructorwindow.ui
-    instructor.h
-    instructor.cpp
-    player.h
-    player.cpp
-    playerevent.h
-    game.h
-    game.cpp
-    order.h
-    order.cpp
-    shipment.h
-    shipment.cpp
+    ${CMAKE_SOURCE_DIR}/src/playerinterface.h
+    ${CMAKE_SOURCE_DIR}/src/playerinterface.cpp
+    ${CMAKE_SOURCE_DIR}/src/playerinterface.h
+    ${CMAKE_SOURCE_DIR}/src/playerinterface.ui
+    ${CMAKE_SOURCE_DIR}/src/instructorwindow.cpp
+    ${CMAKE_SOURCE_DIR}/src/instructorwindow.h
+    ${CMAKE_SOURCE_DIR}/src/instructorwindow.ui
+    ${CMAKE_SOURCE_DIR}/src/instructor.h
+    ${CMAKE_SOURCE_DIR}/src/instructor.cpp
+    ${CMAKE_SOURCE_DIR}/src/player.h
+    ${CMAKE_SOURCE_DIR}/src/player.cpp
+    ${CMAKE_SOURCE_DIR}/src/playerevent.h
+    ${CMAKE_SOURCE_DIR}/src/game.h
+    ${CMAKE_SOURCE_DIR}/src/game.cpp
+    ${CMAKE_SOURCE_DIR}/src/order.h
+    ${CMAKE_SOURCE_DIR}/src/order.cpp
+    ${CMAKE_SOURCE_DIR}/src/shipment.h
+    ${CMAKE_SOURCE_DIR}/src/shipment.cpp
 )
 
 add_executable(beergame
@@ -35,17 +35,9 @@ add_executable(beergame
     ../resources/resources.qrc
 )
 
-add_executable(server
-    ${COMMON_SOURCE_FILES}
-    server/beergameservermain.cpp
-    server/beergameserver.h
-    server/beergameserver.cpp
-    server/playerinterfaceserver.cpp
-    server/beergameserverwindow.cpp
-    server/beergameserverwindow.ui
-    server/beergameserverwindow.h
-    ../resources/resources.qrc
-)
-
 target_link_libraries(beergame PRIVATE Qt5::Widgets Qt5::Network Qt5::Core Qt5::Gui)
-target_link_libraries(server PRIVATE Qt5::Widgets Qt5::Network Qt5::Core Qt5::Gui)
+
+add_subdirectory(client)
+add_subdirectory(server)
+
+

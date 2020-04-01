@@ -18,20 +18,8 @@ BeerGameServerWindow::~BeerGameServerWindow()
     delete ui;
 }
 
-//void BeerGameServerWindow::on_guestBtn_clicked()
-//{
-//    ui->loginBtn->setText("You clicked");
-
-//    BeerGameServer* gameServer = new BeerGameServer;
-//    if(!gameServer->listen(QHostAddress(QString("10.42.0.1")), 9898)) {
-//        std::cout << "Error while establishing server" << std::endl;
-//    }
-
-//    this->hide();
-//}
-
 void BeerGameServerWindow::on_start_server_btn_clicked() {
-    QString ipAddress = ui->port_input->text();
+    QString ipAddress = ui->ip_input->text();
     int portValue = ui->port_input->text().toInt();
 
     beerGameServer = new BeerGameServer;
@@ -47,7 +35,9 @@ void BeerGameServerWindow::on_start_server_btn_clicked() {
 
 void BeerGameServerWindow::on_stopServerBtn_clicked()
 {
+    if(beerGameServer == nullptr) return;
     beerGameServer->stopServer();
+    delete beerGameServer;
     ui->settingsGroup->setEnabled(true);
     ui->stopServerBtn->setEnabled(false);
 }

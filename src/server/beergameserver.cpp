@@ -43,6 +43,8 @@ void BeerGameServer::incomingConnection(qintptr socketDescriptor) {
     connect(this, &BeerGameServer::logMessageServer,
             this, &BeerGameServer::displayLogMessage);
 
+    std::cout << "HELLLO CLIENT" << std::endl;
+
     m_clients.append(playerInterfaceServer);
     emit logMessageServer(QStringLiteral("New client Connected"));
 }
