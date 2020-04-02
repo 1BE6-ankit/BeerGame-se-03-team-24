@@ -10,7 +10,7 @@ protected:
     int eventId;
     int numberOfBeers;
     int orderedInWeek; // in which week is this event executed
-    PlayerInterface* receiver;
+    PlayerInterface* receiver = nullptr;
 
     // for test cases
     int shippedInWeek;
@@ -20,12 +20,18 @@ protected:
 
 
 public:
+    PlayerEvent() {}
+
     PlayerEvent(int eventId, int numberOfBeers, int orderedInWeek, PlayerInterface* receiver) :
         eventId(eventId),
         numberOfBeers(numberOfBeers),
         orderedInWeek(orderedInWeek),
         receiver(receiver)
     {};
+
+    int setEventId(int id) {
+        this->eventId = id;
+    }
 
     int getEventId() const {
         return eventId;
@@ -74,6 +80,14 @@ public:
 
     void setGId(int g) {
         this->gId = g;
+    }
+
+    void setReceiver(PlayerInterface* pi) {
+        this->receiver = pi;
+    }
+
+    PlayerInterface* getReceiver() {
+        return receiver;
     }
 
     int getGId() {

@@ -15,11 +15,15 @@ Player::Player(int role) :
 {};
 
 void Player::placeOrder(int numberOfBeers) {
-    playerInterface->placeOrder(numberOfBeers);
+    orderPlaced = true;
+    if(playerInterface != nullptr)
+        playerInterface->placeOrder(numberOfBeers);
 }
 
 void Player::placeShipment(int numberOfBeers){
-    playerInterface->placeShipment(numberOfBeers);
+    shipmentPlaced = true;
+    if(playerInterface != nullptr)
+        playerInterface->placeShipment(numberOfBeers);
 }
 
 void Player::startTransaction(int nOrders) {
@@ -36,6 +40,9 @@ bool Player::transactionReceived() {
 void Player::updateData() {
     oldInventory = inventory;
     oldBackOrder = backOrder;
+
+    orderPlaced = false;
+    shipmentPlaced = false;
 
     totalCost += (double) holdingCost * (double) inventory +
             (double) backOrderCost * (double) backOrder;
@@ -94,8 +101,12 @@ void Player::setInterface(PlayerInterface* playerInterface) {
     this->playerInterface = playerInterface;
 }
 
-int Player::getOrderPlaced() {
+bool Player::isOrderPlaced() {
     return orderPlaced;
+}
+
+bool Player::isShipmentPlaced() {
+    return shipmentPlaced;
 }
 
 int Player::getIncomingShipment() {
@@ -156,6 +167,18 @@ void Player::setInventory(int in) {
     this->inventory = in;
 }
 
+void Player::setTotalCost(double cost) {
+    this->totalCost = cost;
+}
+
+void Player::setIncomingShipment(int in) {
+    this->incomingShipment = in;
+}
+
+void Player::setOutgoingShipment(int out) {
+    this->outgoingShipment = out;
+}
+
 void Player::setBackorder(int o) {
     this->backOrder = o;
 }
@@ -172,9 +195,15 @@ int Player::getPId() {
     return pId;
 }
 
-
 int Player::getCost(){
     return cost;
 };
 
+bool Player::isOrderReceived() {
+    return orderReceived;
+}
+
+bool Player::isShipmentReceived() {
+    return shipmentReceived;
+}
 

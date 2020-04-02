@@ -46,14 +46,13 @@ private:
 
     bool orderReceived = false;
     bool shipmentReceived = false;
+    bool orderPlaced = false;
+    bool shipmentPlaced = false;
 
     void updateData();
     int getAvailableShipment(int numberOfBeers);
 
-    PlayerInterface* playerInterface;
-
-    // test ases
-    int orderPlaced;
+    PlayerInterface* playerInterface = nullptr;
 
 public: // every function here has been made void just for making template, change it accordingly
     Player() {}
@@ -97,13 +96,21 @@ public: // every function here has been made void just for making template, chan
 
     void setBackorder(int);
 
+    void setOutgoingShipment(int);
+
     void setOrderPlaced(int);
+
+    void setTotalCost(double);
+
+    void setIncomingShipment(int);
 
     void setCost(double);
 
     int getPId();
 
-    int getOrderPlaced();
+    bool isOrderPlaced();
+
+    bool isShipmentPlaced();
 
     int getRole() const {return role;};
 
@@ -120,6 +127,10 @@ public: // every function here has been made void just for making template, chan
     int getInventory();
 
     int getOldInventory();
+
+    bool isOrderReceived();
+
+    bool isShipmentReceived();
 };
 
 #endif //PLAYER_H
