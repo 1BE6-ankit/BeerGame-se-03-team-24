@@ -13,6 +13,7 @@ BeerGameServerWindow::BeerGameServerWindow(QWidget *parent) :
     ui->stopServerBtn->setEnabled(false);
 }
 
+
 BeerGameServerWindow::~BeerGameServerWindow()
 {
     delete ui;
