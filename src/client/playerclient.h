@@ -43,11 +43,17 @@ class PlayerClient: public QObject
         void disconnectFromHost();
     private slots:
         /**
-         * @brief This function is called when the socket receives data.
+         * @brief This function is called when the socket receives data. Calls the jsonReceived
+         * method for every QJSonObject.
          *
          */
         void onReadyRead();
     signals:
+        /**
+         * @brief signals for different cases.
+         *
+         */
+
         void connected();
         void loggedIn();
         void loginError(const QString &reason);
