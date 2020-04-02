@@ -61,16 +61,16 @@ void ClientInterface::attemptConnection()
         fields << lineEdit;
     }
 
-
-    // Add some standard buttons (Cancel/Ok) at the bottom of the dialog
     QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
                               Qt::Horizontal, &dialog);
     form.addRow(&buttonBox);
     QObject::connect(&buttonBox, SIGNAL(accepted()), &dialog, SLOT(accept()));
     QObject::connect(&buttonBox, SIGNAL(rejected()), &dialog, SLOT(reject()));
     QString hostAddress;
-    // Show the dialog as modal
+
+
     if (dialog.exec() == QDialog::Accepted) {
+
         // If the user didn't dismiss the dialog, do something with the fields
             hostAddress = fields[0]->text();
             portNum = fields[1]->text().toInt();

@@ -3,6 +3,13 @@
 #include <QDialog>
 #include <QHostAddress>
 #include <QTcpSocket>
+/**
+ * This class is resposnible for direct communication with the
+ * server. It has a QTCpSocket variable responsible for sending
+ * and receiving data from the server. It establishes connection with the
+ * server, sends data to the server in JSON format, receives
+ *
+ */
 class PlayerClient: public QObject
 {
     Q_OBJECT
@@ -11,11 +18,34 @@ class PlayerClient: public QObject
         explicit PlayerClient(QObject *parent = nullptr);
         QString playerName = "";
     public slots:
+        /**
+         * @brief Connects to the server given the IP address and the port number.
+         * \param addres ip address of server
+         * \param port port number
+         */
         void connectToServer(const QHostAddress &address, quint16 port);
+        /**
+         * @brief Logs in to the game using valid game id and role
+         * \param GameId id of the game to connect to
+         * \param role  Game role
+         */
         void login(const int &GameId, const int& role);
+        /**
+         * @brief send message to the server
+         * sends message to the server in proper json format
+         *
+         */
         void sendMessage(const QString &text);
+        /**
+         * @brief disconnects from the host
+         *
+         */
         void disconnectFromHost();
     private slots:
+        /**
+         * @brief This function is called when the socket receives data.
+         *
+         */
         void onReadyRead();
     signals:
         void connected();
