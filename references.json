@@ -25,6 +25,11 @@
             "contribution": "Doxygen",
             "file": "docs/CMakeLists.txt"
         },
+        {
+            "url": "https://wiki.qt.io/WIP-How_to_create_a_simple_chat_application#The_Single_Thread_Server",
+            "contribution": "Code for server and client",
+            "file": "src/server/ and src/client code"
+        }
     ]
     
 }
