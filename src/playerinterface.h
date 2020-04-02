@@ -34,11 +34,12 @@ public:
     virtual void setPlayer(Player* player);
     virtual void setGame(Game* game);
     virtual int getRole();
+    Game* getGame() {return game;};
 
 protected:
     Ui::PlayerInterface *ui;
-    Game* game;
-    Player* player;
+    Game* game = nullptr;
+    Player* player = nullptr;
 
 private slots:
     void on_orderBtn_clicked();

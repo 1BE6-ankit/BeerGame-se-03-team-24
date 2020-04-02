@@ -66,10 +66,25 @@ vector<Game> Instructor::createGames(int numberOfGames){
         PlayerInterface* wholesalerI = new PlayerInterface(uiParent);
         PlayerInterface* distributorI = new PlayerInterface(uiParent);
         PlayerInterface* factoryI = new PlayerInterface(uiParent);
+
+        consumer->setInterface(consumerI);
+        consumerI->setGame(game);
         consumerI->setPlayer(consumer);
+
+        retailer->setInterface(retailerI);
+        retailerI->setGame(game);
         retailerI->setPlayer(retailer);
+
+        wholesaler->setInterface(wholesalerI);
+        wholesalerI->setGame(game);
         wholesalerI->setPlayer(wholesaler);
+
+        distributor->setInterface(distributorI);
+        distributorI->setGame(game);
         distributorI->setPlayer(distributor);
+
+        factory->setInterface(factoryI);
+        factoryI->setGame(game);
         factoryI->setPlayer(factory);
 
         game->addPlayerInterface(consumerI);
