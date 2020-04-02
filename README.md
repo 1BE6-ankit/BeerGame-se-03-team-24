@@ -3,7 +3,7 @@
 
 In this sprint, we added these main features in the repository that we received:
 * Created a fully functional game that can be played locally.
-* Adding networking capabilities such that the game can be hosted on a server and players can play in LAN in multiple computers. 
+* Added networking capabilities such that the game can be hosted on a server and players can play in LAN in multiple computers. 
 * Added relevant comments in the code for doxygen.
 * Added functionality tests for the game.
 * Updated code organization
